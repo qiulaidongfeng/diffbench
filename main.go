@@ -40,8 +40,13 @@ func main() {
 	}
 	if len(oldd.m) != 0 {
 		fmt.Println("// old inline , but new not inline")
+		out := make([]string, 0, len(oldd.m))
 		for _, v := range oldd.m {
-			fmt.Println(v.raw)
+			out = append(out, v.raw)
+		}
+		slices.Sort(out)
+		for i := range out {
+			fmt.Println(out[i])
 		}
 	}
 
@@ -49,24 +54,45 @@ func main() {
 
 	if len(newd.m) != 0 {
 		fmt.Println("// new inline , but old not inline")
+		out := make([]string, 0, len(newd.m))
 		for _, v := range newd.m {
-			fmt.Println(v.raw)
+			out = append(out, v.raw)
+		}
+		slices.Sort(out)
+		for i := range out {
+			fmt.Println(out[i])
 		}
 	}
 }
 
 func keepInline(s string) data {
 	v := strings.Split(s, "\n")
-	v = slices.DeleteFunc(v, func(s string) bool {
-		return !strings.Contains(s, "check allows inlining")
-	})
 	ret := data{m: make(map[string]struct {
 		raw    string
 		caller string
 	})}
+	v = slices.DeleteFunc(v, func(s string) bool {
+		if strings.Contains(s, "escape") {
+			ret.m[s] = struct {
+				raw    string
+				caller string
+			}{raw: s}
+		}
+		return !strings.Contains(s, "check allows inlining") && !strings.Contains(s, "inlining call to")
+	})
 	for i := range v {
 		l := strings.Split(v[i], " ")
 		for j := range l {
+			if l[j] == "inlining" && l[j+1] == "call" {
+				at := l[j-1]
+				funcname := l[j+3]
+				ret.m[at+funcname] = struct {
+					raw    string
+					caller string
+				}{
+					raw: v[i],
+				}
+			}
 			if l[j] == "call" {
 				caller := ""
 				at := ""

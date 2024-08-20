@@ -1,5 +1,5 @@
 # diffbench
-Analysis of different versions of go compilers, pgo debug information display inline optimization differences
+Analysis of different versions of go compilers, pgo debug information and inline and escape analysis information display inline optimization differences
 
 # Use
 flag information:
@@ -12,9 +12,9 @@ flag information:
 
 use example:
 
-a command like this gets pgo debug information:
+a command like this gets pgo debug information and inline and escape analysis information:
 
-> go build -gcflags=all=-d=pgodebug=1 2> old.txt
+> go build -gcflags=all="-d=pgodebug=1 -m" 2> old.txt
 
 diffbench -new /new.txt -old /old.txt
 
