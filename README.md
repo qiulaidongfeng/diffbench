@@ -12,6 +12,10 @@ flag information:
 
 use example:
 
+a command like this gets pgo debug information:
+
+> go build -gcflags=all=-d=pgodebug=1 2> old.txt
+
 diffbench -new /new.txt -old /old.txt
 
 output structare is:
